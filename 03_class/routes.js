@@ -3,8 +3,8 @@ const app = express();
 app.disable('x-powered-by');
 app.use(express.json());
 
-app.use((req, res, next) => {
-    console.log('your json body:', req.body);
+app.use((_req, _res, next) => {
+    console.log('middleware 1');
     next();
 });
 
