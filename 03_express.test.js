@@ -1,18 +1,10 @@
-const request = require('supertest');
+const supertest = require('supertest');
 const app = require('./03_express.js');
 let server;
 
-describe('express app', () => {
-    beforeAll((done) => {
-        server = app.listen(4000, done);
-    });
-
+describe('express app', () => {   
     it('responds with Hello World!', async () => {
-        const response = await request(app).get('/');
+        const response = await supertest(app).get('/');
         expect(response.text).toBe('Hello World!');
-    });
-
-    afterAll((done) => {
-        server.close(done);
     });
 });
