@@ -1,6 +1,5 @@
 const supertest = require('supertest');
 const app = require('./03_express.js');
-let server;
 
 describe('express app', () => {   
     it('responds with Hello World!', async () => {
