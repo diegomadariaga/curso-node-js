@@ -1,12 +1,14 @@
 const express = require('express');
 const app = express();
-const { movieSchema, validateMovie } = require('./movieSchema');
+const { validateMovieUpdate, validateMovie } = require('./movieSchema');
+const cors = require('cors');
 
 /** @type {import ('./movie.dto').MovieDto []} */
 const movies = require('./movies.json');
 
 app.disable('x-powered-by');
 app.use(express.json());
+app.use(cors());
 
 app.use((_req, _res, next) => {
     console.log('middleware 1');
@@ -48,11 +50,40 @@ app.get('/movies/:id', (req, res) => {
 });
 
 app.post('/movies', (req, res) => {
-    const { title, year, director, duration, poster, genre, rate } = req.body;
-    const id = crypto.randomUUID();
-    const newMovie = { id, title, year, director, duration, poster, genre, rate };
-    movies.push(newMovie);
-    return res.status(201).json(newMovie);
+    try {
+        const body = validateMovie(req.body);
+        if (!body.success) {
+            return res.status(400).send({ errors: body.error.errors });
+        }
+        const { title, year, director, duration, poster, genre, rate } = body.data;
+        const id = crypto.randomUUID();
+        const newMovie = { id, title, year, director, duration, poster, genre, rate };
+        movies.push(newMovie);
+        return res.status(201).json(newMovie);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send({ message: 'Server error' });
+    }
+});
+
+app.patch('/movies/:id', (req, res) => {
+    try {
+        const id = req.params.id;
+        const movie = movies.find((movie) => movie.id === id);
+        if (!movie) {
+            return res.status(404).send({ message: 'Movie not found' });
+        }
+        const body = validateMovieUpdate(req.body);
+        if (!body.success) {
+            return res.status(400).send({ errors: body.error.errors });
+        }
+        const updatedMovie = { ...movie, ...body.data };
+        // save updated movie into database
+        return res.json(updatedMovie);
+    } catch (err) {
+        console.error(err);
+        return res.status(500).send({ message: 'Server error' });
+    }
 });
 
 app.use((_req, res) => {

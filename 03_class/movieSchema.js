@@ -2,16 +2,16 @@ const { z } = require('zod');
 
 /**
  * @param {import ('./movie.dto').MovieDto} movie
- * @returns {import ('./movie.dto').MovieDto}
  */
 function validateMovie(movie) {
-    return movieSchema.parse(movie);
+    return movieSchema.safeParse(movie);
+}
+function validateMovieUpdate(movie) {
+    return movieSchema.partial().safeParse(movie);
 }
 
 const movieSchema = z.object({
-    id: z.string().uuid().optional(),
     title: z.string({
-        message: 'Invalid title',
         invalid_type_error: 'Title must be a string',
         required_error: 'Title is required',
     }),
@@ -25,5 +25,5 @@ const movieSchema = z.object({
 
 module.exports = {
     validateMovie,
-    movieSchema,
+    validateMovieUpdate,
 };

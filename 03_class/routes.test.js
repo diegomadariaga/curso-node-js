@@ -62,6 +62,82 @@ describe('express app', () => {
                 expect(response.status).toBe(201);
                 expect(response.body).toEqual(expect.objectContaining(body));
             });
+            it('should return 400 if data is invalid', async () => {
+                const body = {
+                    title: 99,
+                    year: 2021,
+                    director: 'Director',
+                    duration: 120,
+                    poster: 'https://example.com/poster.jpg',
+                    genre: ['Action'],
+                    rate: 10,
+                };
+                const response = await supertest(app).post('/movies').send(body);
+                expect(response.status).toBe(400);
+                expect(response.body).toHaveProperty('errors');
+            });
+            it('should ignore additional properties', async () => {
+                const body = {
+                    title: 'New Movie',
+                    year: 2021,
+                    director: 'Director',
+                    duration: 120,
+                    poster: 'https://example.com/poster.jpg',
+                    genre: ['Action'],
+                    rate: 5,
+                    extra: 'Extra property',
+                };
+                const response = await supertest(app).post('/movies').send(body);
+                expect(response.status).toBe(201);
+                expect(response.body).not.toHaveProperty('extra');
+            });
+        });
+        describe('PATCH /movies/:id', () => {
+            it('should update a movie', async () => {
+                const id = 'dcdd0fad-a94c-4810-8acc-5f108d3b18c3';
+                const body = {
+                    title: 'Updated Movie',
+                    year: 2021,
+                    director: 'Director',
+                    duration: 120,
+                    poster: 'https://example.com/poster.jpg',
+                    genre: ['Action'],
+                    rate: 5,
+                };
+                const response = await supertest(app).patch(`/movies/${id}`).send(body);
+                expect(response.status).toBe(200);
+                expect(response.body).toEqual(expect.objectContaining(body));
+            });
+            it('should return 400 if data is invalid', async () => {
+                const id = 'dcdd0fad-a94c-4810-8acc-5f108d3b18c3';
+                const body = {
+                    title: 99,
+                    year: 2021,
+                    director: 'Director',
+                    duration: 120,
+                    poster: 'https://example.com/poster.jpg',
+                    genre: ['Action'],
+                    rate: 10,
+                };
+                const response = await supertest(app).patch(`/movies/${id}`).send(body);
+                expect(response.status).toBe(400);
+                expect(response.body).toHaveProperty('errors');
+            });
+            it('should return 404 if movie is not found', async () => {
+                const id = '4';
+                const body = {
+                    title: 'Updated Movie',
+                    year: 2021,
+                    director: 'Director',
+                    duration: 120,
+                    poster: 'https://example.com/poster.jpg',
+                    genre: ['Action'],
+                    rate: 5,
+                };
+                const response = await supertest(app).patch(`/movies/${id}`).send(body);
+                expect(response.status).toBe(404);
+                expect(response.body).toEqual({ message: 'Movie not found' });
+            });
         });
     });
 });
