@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node main.js",
     "start:dev": "node --watch 03_express.js",
-    "test": "node --experimental-vm-modules node_modules/.bin/jest"
+    "test": "node --experimental-vm-modules node_modules/.bin/jest --config jest.config.js"
   },
   "keywords": [],
   "author": "diegomadariaga",
@@ -25,5 +25,8 @@
     "globals": "^15.3.0",
     "jest": "^29.7.0",
     "supertest": "^7.0.0"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }

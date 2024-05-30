@@ -1,5 +1,5 @@
 import supertest from 'supertest';
-import app from './routes.js';
+import app from './app.js';
 
 describe('express app', () => {
     it('responds with Hello World!', async () => {
