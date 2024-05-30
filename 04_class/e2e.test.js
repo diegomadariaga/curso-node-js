@@ -139,5 +139,19 @@ describe('express app', () => {
                 expect(response.body).toEqual({ message: 'Movie not found' });
             });
         });
+        describe('DELETE /movies/:id', () => {
+            it('should delete a movie', async () => {
+                const id = 'dcdd0fad-a94c-4810-8acc-5f108d3b18c3';
+                const response = await supertest(app).delete(`/movies/${id}`);
+                expect(response.status).toBe(200);
+                expect(response.body.id).toBe(id);
+            });
+            it('should return 404 if movie is not found', async () => {
+                const id = '4';
+                const response = await supertest(app).delete(`/movies/${id}`);
+                expect(response.status).toBe(404);
+                expect(response.body).toEqual({ message: 'Movie not found' });
+            });
+        });
     });
 });
