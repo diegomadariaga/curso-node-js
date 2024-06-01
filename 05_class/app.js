@@ -1,6 +1,7 @@
 import express, { json } from 'express';
 import cors from 'cors';
-import moviesRouter from './routes/movies.js';
+import { createMovieRouter } from './routes/movies.js';
+import { MovieModel } from './models/movie.model.js';
 import middleware1 from './middlewares/middleware.js';
 const app = express();
 
@@ -20,7 +21,7 @@ app.post('/', (req, res) => {
 });
 
 //movies
-app.use('/movies', moviesRouter);
+app.use('/movies', createMovieRouter({ movieModel: MovieModel }));
 app.use((_req, res) => {
     return res.status(404).send('Not Found');
 });

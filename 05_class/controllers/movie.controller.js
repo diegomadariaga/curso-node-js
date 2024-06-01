@@ -1,18 +1,20 @@
-import { MovieModel } from '../models/movie.model.js';
 import { validateMovieUpdate, validateMovie } from '../movieSchema.js';
 export class MovieController {
-    static async getAllMovies(req, res) {
+    constructor({movieModel}) {
+        this.movieModel = movieModel;
+    }
+     getAllMovies = async (req, res) => {
         const genre = req.query.genre;
-        const movies = await MovieModel.getAllMovies({ genre });
+        const movies = await this.movieModel.getAllMovies({ genre });
         if (genre && movies?.length === 0) {
             return res.status(404).json([]);
         }
         return res.json(movies);
-    }
-    static async getMovieById(req, res) {
+    };
+    getMovieById = async (req, res) => {
         try {
             const id = req.params.id;
-            const movie = await MovieModel.getMovieById({ id });
+            const movie = await this.movieModel.getMovieById({ id });
             if (!movie) {
                 return res.status(404).send({ message: 'Movie not found' });
             }
@@ -22,28 +24,28 @@ export class MovieController {
             return res.status(500).send({ message: 'Server error' });
         }
     }
-    static async addMovie(req, res) {
+    addMovie = async (req, res) => {
         try {
             const body = validateMovie(req.body);
             if (!body.success) {
                 return res.status(400).send({ errors: body.error.errors });
             }
             const { title, year, director, duration, poster, genre, rate } = body.data;
-            const newMovie = await MovieModel.addMovie({ title, year, director, duration, poster, genres: genre, rate });
+            const newMovie = await this.movieModel.addMovie({ title, year, director, duration, poster, genres: genre, rate });
             return res.status(201).json(newMovie);
         } catch (err) {
             console.error('error while adding movie', err);
             return res.status(500).send({ message: 'Server error' });
         }
     }
-    static async updateMovie(req, res) {
+    updateMovie = async (req, res) => {
         try {
             const id = req.params.id;
             const body = validateMovieUpdate(req.body);
             if (!body.success) {
                 return res.status(400).send({ errors: body.error.errors });
             }
-            const updatedMovie = await MovieModel.updateMovie({
+            const updatedMovie = await this.movieModel.updateMovie({
                 id,
                 title: body.data.title,
                 year: body.data.year,
@@ -63,10 +65,10 @@ export class MovieController {
             return res.status(500).send({ message: 'Server error' });
         }
     }
-    static async deleteMovie(req, res) {
+    deleteMovie = async (req, res) => {
         try {
             const id = req.params.id;
-            const isDeletedMovie = await MovieModel.deleteMovie({ id });
+            const isDeletedMovie = await this.movieModel.deleteMovie({ id });
             if (!isDeletedMovie) {
                 return res.status(404).send({ message: 'Movie not found' });
             }
