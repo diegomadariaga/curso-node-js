@@ -4,7 +4,7 @@ export class MovieController {
     static async getAllMovies(req, res) {
         const genre = req.query.genre;
         const movies = await MovieModel.getAllMovies({ genre });
-        if (genre && movies.length === 0) {
+        if (genre && movies?.length === 0) {
             return res.status(404).json([]);
         }
         return res.json(movies);
@@ -29,7 +29,7 @@ export class MovieController {
                 return res.status(400).send({ errors: body.error.errors });
             }
             const { title, year, director, duration, poster, genre, rate } = body.data;
-            const newMovie = await MovieModel.addMovie({ title, year, director, duration, poster, genre, rate });
+            const newMovie = await MovieModel.addMovie({ title, year, director, duration, poster, genres: genre, rate });
             return res.status(201).json(newMovie);
         } catch (err) {
             console.error('error while adding movie', err);
@@ -66,11 +66,11 @@ export class MovieController {
     static async deleteMovie(req, res) {
         try {
             const id = req.params.id;
-            const deletedMovie = await MovieModel.deleteMovie({ id });
-            if (!deletedMovie) {
+            const isDeletedMovie = await MovieModel.deleteMovie({ id });
+            if (!isDeletedMovie) {
                 return res.status(404).send({ message: 'Movie not found' });
             }
-            return res.json(deletedMovie);
+            return res.json({ isDeletedMovie, message: 'Movie deleted successfully', id });
         } catch (err) {
             console.error(err);
             return res.status(500).send({ message: 'Server error' });

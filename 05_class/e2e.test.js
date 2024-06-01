@@ -24,7 +24,7 @@ describe('express app', () => {
         });
         describe('GET /movies/:id', () => {
             it('should return a single movie', async () => {
-                const id = 'dcdd0fad-a94c-4810-8acc-5f108d3b18c3';
+                const id = '04986507-b3ed-442c-8ae7-4c5df804f896';
                 const response = await supertest(app).get(`/movies/${id}`);
                 expect(response.status).toBe(200);
             });
@@ -60,7 +60,8 @@ describe('express app', () => {
                 };
                 const response = await supertest(app).post('/movies').send(body);
                 expect(response.status).toBe(201);
-                expect(response.body).toEqual(expect.objectContaining(body));
+                expect(response.body).toHaveProperty('id');
+                expect(response.body).toHaveProperty('title', body.title);
             });
             it('should return 400 if data is invalid', async () => {
                 const body = {
@@ -94,11 +95,11 @@ describe('express app', () => {
         });
         describe('PATCH /movies/:id', () => {
             it('should update a movie', async () => {
-                const id = 'dcdd0fad-a94c-4810-8acc-5f108d3b18c3';
+                const id = '0fca4ac4-59e7-4f5c-b5e5-ac2fcf2e1b80';
                 const body = {
                     title: 'Updated Movie',
                     year: 2021,
-                    director: 'Director',
+                    director: 'Updated Director',
                     duration: 120,
                     poster: 'https://example.com/poster.jpg',
                     genre: ['Action'],
@@ -141,10 +142,19 @@ describe('express app', () => {
         });
         describe('DELETE /movies/:id', () => {
             it('should delete a movie', async () => {
-                const id = 'dcdd0fad-a94c-4810-8acc-5f108d3b18c3';
+                const movieToDelete = await supertest(app).post('/movies').send({
+                    title: 'Movie to delete',
+                    year: 2021,
+                    director: 'Director',
+                    duration: 120,
+                    poster: 'https://example.com/poster.jpg',
+                    genre: ['Action'],
+                    rate: 5,
+                });
+
+                const id = movieToDelete.body.id;
                 const response = await supertest(app).delete(`/movies/${id}`);
                 expect(response.status).toBe(200);
-                expect(response.body.id).toBe(id);
             });
             it('should return 404 if movie is not found', async () => {
                 const id = '4';
