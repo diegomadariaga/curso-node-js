@@ -2,6 +2,7 @@ import express from 'express';
 import logger from 'morgan';
 import { Server } from 'socket.io';
 import { createServer } from 'http';
+import db from './db_conn.js';
 
 const PORT = process.env.PORT || 3000;
 
@@ -15,6 +16,17 @@ io.on('connection', (socket) => {
     console.log('A user connected');
     socket.on('disconnect', () => {
         console.log('User disconnected');
+    });
+    socket.on('client-message', async (message) => {
+        console.log('Message from client:', message);
+        try {
+            const sql = `INSERT INTO messages (message) VALUES (?)`;
+            await db.run(sql, [message]);
+        }
+        catch (err) {
+            console.error(err.message);
+        }
+        io.emit('server-message', message);
     });
 });
 
