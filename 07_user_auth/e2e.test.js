@@ -25,4 +25,12 @@ describe('E2E', () => {
       expect(response.body).toHaveProperty('password', 'test')
     })
   })
+  describe('DELETE /users', () => {
+    it('should return 204 OK', async () => {
+      const response = await request.delete('/users').send({
+        username: 'test'
+      })
+      expect(response.status).toBe(204)
+    })
+  })
 })

@@ -48,4 +48,23 @@ async function getUserByUserName ({ username }) {
   }
 }
 
-export { getUsers, createUser }
+async function deleteUser (req, res) {
+  const { username } = req.body
+  try {
+    const user = await User.findOne({ where: { username } })
+    if (!user) {
+      const errorMessage = 'El usuario no existe'
+      console.error(errorMessage)
+      return res.status(404).json({ message: errorMessage })
+    }
+
+    await user.destroy()
+    return res.status(204).end()
+  } catch (error) {
+    const errorMessage = 'Error al eliminar el usuario'
+    console.error(errorMessage, error)
+    return res.status(500).json({ message: errorMessage })
+  }
+}
+
+export { getUsers, createUser, deleteUser }
