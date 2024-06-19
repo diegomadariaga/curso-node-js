@@ -80,15 +80,31 @@ export class UserRepository {
 
   static async updateUser ({ username, password }) {
     try {
+      const hashedPassword = bcrypt.hash(password, 10)
+      const user = await UserRepository.getUserByUserName({ username })
+      if (!user) {
+        throw new Error('El usuario no existe')
+      }
+      const newPass = await hashedPassword
+      await user.update({ password: newPass })
+    } catch (error) {
+      console.error('Error al actualizar el usuario:', error)
+      throw new Error('Error al actualizar el usuario')
+    }
+  }
+
+  static async verifyPassword ({ username, password }) {
+    try {
       const user = await UserRepository.getUserByUserName({ username })
       if (!user) {
         throw new Error('El usuario no existe')
       }
 
-      await user.update({ password })
+      const isPasswordValid = await bcrypt.compare(password, user.dataValues.password)
+      return isPasswordValid
     } catch (error) {
-      console.error('Error al actualizar el usuario:', error)
-      throw new Error('Error al actualizar el usuario')
+      console.error('Error al verificar la contraseña:', error)
+      throw new Error('Error al verificar la contraseña')
     }
   }
 }

@@ -24,6 +24,24 @@ describe('E2E', () => {
       expect(response.body).toHaveProperty('username', 'test')
     })
   })
+  describe('PUT /users', () => {
+    it('should return 204 OK', async () => {
+      const response = await request.put('/users').send({
+        username: 'test',
+        password: 'test'
+      })
+      expect(response.status).toBe(204)
+    })
+  })
+  describe('POST /users/login', () => {
+    it('should return 200 OK', async () => {
+      const response = await request.post('/users/login').send({
+        username: 'test',
+        password: 'test'
+      })
+      expect(response.status).toBe(200)
+    })
+  })
   describe('DELETE /users', () => {
     it('should return 204 OK', async () => {
       const response = await request.delete('/users').send({

@@ -71,4 +71,48 @@ async function deleteUser (req, res) {
   }
 }
 
-export { getUsers, createUser, deleteUser }
+async function updateUser (req, res) {
+  try {
+    const { username, password } = req.body
+    const user = await UserRepository.getUserByUserName({ username })
+    if (!user) {
+      const errorMessage = 'El usuario no existe'
+      console.error(errorMessage)
+      return res.status(404).json({ message: errorMessage })
+    }
+
+    await UserRepository.updateUser({ username, password })
+    return res.status(204).end()
+  } catch (error) {
+    const errorMessage = 'Error al actualizar el usuario'
+    console.error(errorMessage, error)
+    return res.status(500).json({ message: errorMessage })
+  }
+}
+
+async function login (req, res) {
+  try {
+    const { username, password } = req.body
+    const user = await UserRepository.getUserByUserName({ username })
+    if (!user) {
+      const errorMessage = 'El usuario no existe'
+      console.error(errorMessage)
+      return res.status(404).json({ message: errorMessage })
+    }
+
+    const match = await UserRepository.verifyPassword({ username, password })
+    if (!match) {
+      const errorMessage = 'Contraseña incorrecta'
+      console.error(errorMessage)
+      return res.status(401).json({ message: errorMessage })
+    }
+
+    return res.status(200).end()
+  } catch (error) {
+    const errorMessage = 'Error al iniciar sesión'
+    console.error(errorMessage, error)
+    return res.status(500).json({ message: errorMessage })
+  }
+}
+
+export { getUsers, createUser, deleteUser, updateUser, login }
