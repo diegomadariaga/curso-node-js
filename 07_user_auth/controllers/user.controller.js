@@ -1,4 +1,5 @@
 import { UserRepository } from '../models/user.repository.js'
+import bcrypt from 'bcrypt'
 
 async function getUsers (_req, res) {
   try {
@@ -19,15 +20,20 @@ async function getUsers (_req, res) {
 async function createUser (req, res) {
   try {
     const { username, password } = req.body
+    const saltRounds = process.env.SALT_ROUNDS || 10
+    const hashedPassword = bcrypt.hash(password, saltRounds)
     const userExists = await getUserByUserName({ username })
     if (userExists) {
       const errorMessage = 'El usuario ya existe'
       console.error(errorMessage)
       return res.status(409).json({ message: errorMessage })
     }
-
-    const user = await UserRepository.createUser({ username, password })
-    return res.status(201).json(user)
+    const newPass = await hashedPassword
+    const user = await UserRepository.createUser({ username, password: newPass })
+    return res.status(201).json({
+      id: user.dataValues.id,
+      username: user.dataValues.username
+    })
   } catch (error) {
     const errorMessage = 'Error al crear el usuario'
     console.error(errorMessage, error)

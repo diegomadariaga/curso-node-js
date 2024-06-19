@@ -22,7 +22,6 @@ describe('E2E', () => {
       expect(response.status).toBe(201)
       expect(response.body).toHaveProperty('id')
       expect(response.body).toHaveProperty('username', 'test')
-      expect(response.body).toHaveProperty('password', 'test')
     })
   })
   describe('DELETE /users', () => {
