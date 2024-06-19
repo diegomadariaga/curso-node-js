@@ -1,8 +1,8 @@
-import User from '../models/user-model.js'
+import { UserRepository } from '../models/user.repository.js'
 
 async function getUsers (_req, res) {
   try {
-    const users = await User.findAll()
+    const users = await UserRepository.getAllUsers()
     if (!users) {
       const errorMessage = 'No se encontraron usuarios'
       console.error(errorMessage)
@@ -17,8 +17,8 @@ async function getUsers (_req, res) {
 }
 
 async function createUser (req, res) {
-  const { username, password } = req.body
   try {
+    const { username, password } = req.body
     const userExists = await getUserByUserName({ username })
     if (userExists) {
       const errorMessage = 'El usuario ya existe'
@@ -26,7 +26,7 @@ async function createUser (req, res) {
       return res.status(409).json({ message: errorMessage })
     }
 
-    const user = await User.create({ username, password })
+    const user = await UserRepository.createUser({ username, password })
     return res.status(201).json(user)
   } catch (error) {
     const errorMessage = 'Error al crear el usuario'
@@ -37,7 +37,7 @@ async function createUser (req, res) {
 
 async function getUserByUserName ({ username }) {
   try {
-    const user = await User.findOne({ where: { username } })
+    const user = await UserRepository.getUserByUserName({ username })
     if (!user) {
       return null
     }
@@ -49,9 +49,9 @@ async function getUserByUserName ({ username }) {
 }
 
 async function deleteUser (req, res) {
-  const { username } = req.body
   try {
-    const user = await User.findOne({ where: { username } })
+    const { username } = req.body
+    const user = await UserRepository.getUserByUserName({ username })
     if (!user) {
       const errorMessage = 'El usuario no existe'
       console.error(errorMessage)
