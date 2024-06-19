@@ -1,5 +1,5 @@
 import { DataTypes, Sequelize } from 'sequelize'
-import sequelize from './db_conn'
+import sequelize from './db_conn.js'
 import bcrypt from 'bcrypt'
 
 const User = sequelize.define('User', {
@@ -93,7 +93,7 @@ export class UserRepository {
     }
   }
 
-  static async verifyPassword ({ username, password }) {
+  static async authenticateUser ({ username, password }) {
     try {
       const user = await UserRepository.getUserByUserName({ username })
       if (!user) {
@@ -101,7 +101,10 @@ export class UserRepository {
       }
 
       const isPasswordValid = await bcrypt.compare(password, user.dataValues.password)
-      return isPasswordValid
+      if (!isPasswordValid) {
+        throw new Error('La contraseña no es válida')
+      }
+      return user.dataValues
     } catch (error) {
       console.error('Error al verificar la contraseña:', error)
       throw new Error('Error al verificar la contraseña')

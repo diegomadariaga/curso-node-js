@@ -1,4 +1,6 @@
 import { UserRepository } from '../models/user.repository.js'
+import jsonwebtoken from 'jsonwebtoken'
+import ENVConfig from '../env.config.js'
 
 async function getUsers (_req, res) {
   try {
@@ -93,21 +95,17 @@ async function updateUser (req, res) {
 async function login (req, res) {
   try {
     const { username, password } = req.body
-    const user = await UserRepository.getUserByUserName({ username })
-    if (!user) {
-      const errorMessage = 'El usuario no existe'
-      console.error(errorMessage)
-      return res.status(404).json({ message: errorMessage })
-    }
 
-    const match = await UserRepository.verifyPassword({ username, password })
-    if (!match) {
+    const user = await UserRepository.authenticateUser({ username, password })
+    if (!user) {
       const errorMessage = 'Contraseña incorrecta'
       console.error(errorMessage)
       return res.status(401).json({ message: errorMessage })
     }
-
-    return res.status(200).end()
+    const token = jsonwebtoken.sign({ username }, ENVConfig.JWT_SECRET, {
+      expiresIn: '1h'
+    })
+    return res.json({ token })
   } catch (error) {
     const errorMessage = 'Error al iniciar sesión'
     console.error(errorMessage, error)
