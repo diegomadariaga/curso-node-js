@@ -1,5 +1,6 @@
 import { DataTypes, Sequelize } from 'sequelize'
 import sequelize from './db_conn'
+import bcrypt from 'bcrypt'
 
 const User = sequelize.define('User', {
   id: {
@@ -48,12 +49,14 @@ export class UserRepository {
 
   static async createUser ({ username, password }) {
     try {
+      const saltRounds = process.env.SALT_ROUNDS || 10
+      const hashedPassword = bcrypt.hash(password, saltRounds)
       const userExists = await UserRepository.getUserByUserName({ username })
       if (userExists) {
         throw new Error('El usuario ya existe')
       }
-
-      const user = await User.create({ username, password })
+      const newPass = await hashedPassword
+      const user = await User.create({ username, password: newPass })
       return user
     } catch (error) {
       console.error('Error al crear el usuario:', error)
